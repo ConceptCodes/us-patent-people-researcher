@@ -150,3 +150,26 @@ Consider the following:
 
 If the email meets all these criteria, respond with "No revision needed." If not, briefly explain what needs to be revised.`;
 }
+
+export function enhanceSearchQueries(
+  queries: string[],
+  reasoning: string,
+  missingFields: string[]
+): string {
+  return `You are an expert search strategist. Your task is to improve the following search queries to maximize the chances of finding information that fills in missing fields.
+
+  Here are the current search queries:
+  ${queries.map((q, i) => `${i + 1}. ${q}`).join("\n")}
+
+  Reasoning for improvement:
+  ${reasoning}
+
+  The following fields are missing or incomplete and should be prioritized:
+  ${
+    missingFields.length > 0
+      ? missingFields.map((f) => `- ${f}`).join("\n")
+      : "None"
+  }
+
+  Revise or add search queries to specifically target the missing information. Make sure each query is focused, relevant, and likely to yield results for the missing fields. Return the improved list of search queries.`;
+}
