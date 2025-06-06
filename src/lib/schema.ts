@@ -48,3 +48,28 @@ export const reflectionSchema = z.object({
     ),
   reasoning: z.string().describe("Brief explanation of the assessment"),
 });
+
+export const emailDraftSchema = z
+  .object({
+    subject: z.string().describe("Subject line of the email draft"),
+    body: z
+      .string()
+      .describe("Body of the email draft, including a greeting and closing"),
+  })
+  .describe("Email draft schema");
+
+export type EmailDraftSchema = z.infer<typeof emailDraftSchema>;
+
+export const reviewDraftEmailSchema = z.object({
+  isSatisfactory: z
+    .boolean()
+    .describe(
+      "True if the email draft is satisfactory, False otherwise. If True, feedback is not required."
+    ),
+  feedback: z
+    .string()
+    .optional()
+    .describe(
+      "Feedback on the email draft, including any changes needed or suggestions for improvement"
+    ),
+});

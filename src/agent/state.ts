@@ -1,7 +1,7 @@
 import { Annotation } from "@langchain/langgraph";
 
 import type { Person, PatentViewInfo } from "@/types";
-import type { ExtractSchema } from "@/lib/schema";
+import type { EmailDraftSchema, ExtractSchema } from "@/lib/schema";
 
 export const InputStateAnnotation = Annotation.Root({
   usPatentNumber: Annotation<string>({
@@ -19,17 +19,13 @@ export const InputStateAnnotation = Annotation.Root({
 });
 
 export const OutPutStateAnnotation = Annotation.Root({
-  usPatentWebViewUrl: Annotation<string>({
-    reducer: (x, y) => y ?? x,
-    default: () => "",
-  }),
   personOfInterest: Annotation<Person>({
     reducer: (x, y) => ({ ...x, ...y }),
     default: () => ({} as Person),
   }),
-  emailDraft: Annotation<string>({
+  emailDraft: Annotation<EmailDraftSchema | null>({
     reducer: (x, y) => y ?? x,
-    default: () => "",
+    default: () => null,
   }),
 });
 
@@ -51,6 +47,10 @@ export const AgentStateAnnotation = Annotation.Root({
   isSatisfactory: Annotation<boolean>({
     reducer: (x, y) => y ?? x,
     default: () => false,
+  }),
+  feedback: Annotation<string>({
+    reducer: (x, y) => y ?? x,
+    default: () => "",
   }),
   reflectionSteps: Annotation<number>({
     reducer: (x, y) => y ?? x,

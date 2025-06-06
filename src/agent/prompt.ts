@@ -1,3 +1,5 @@
+import type { EmailDraftSchema } from "@/lib/schema";
+
 export function getExtractionPrompt(info: string, notes: string): string {
   return `Your task is to take notes gathered from web research and extract them into the following schema.
 
@@ -99,14 +101,12 @@ Analyze if all required fields are present and sufficiently populated. Consider:
 `;
 }
 
-// TODO: include the us patent information in the email draft
 export function getEmailDraftPrompt(
-  person: string,
   info: string,
   patentInfo: string,
   userNotes: string
 ): string {
-  return `You are an email draft generator tasked with creating a professional email to ${person}.
+  return `You are an email draft generator tasked with creating a professional outreach email.
   
 Here is the information you have gathered about them:
 <info>
@@ -132,4 +132,21 @@ Please draft a concise, professional email that:
 6. Avoids unnecessary jargon or overly complex language
 7. Is no longer than 200 words
 Make sure to include a clear subject line that summarizes the email's purpose.`;
+}
+
+export function getEmailReviewPrompt(emailDraft: EmailDraftSchema): string {
+  return `You are an expert in professional communication. Your task is to review the following email draft and determine if it needs to be revised.
+
+<email_draft>
+${JSON.stringify(emailDraft, null, 2)}
+</email_draft>
+
+Consider the following:
+1. Is the email clear, concise, and professional?
+2. Does it have a clear subject line and purpose?
+3. Is the tone appropriate for a professional context?
+4. Are there any grammatical or spelling errors?
+5. Is the request or reason for contacting clearly stated?
+
+If the email meets all these criteria, respond with "No revision needed." If not, briefly explain what needs to be revised.`;
 }
