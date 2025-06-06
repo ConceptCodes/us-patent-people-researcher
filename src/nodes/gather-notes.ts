@@ -16,13 +16,12 @@ export const gatherNotesNode = async (
     JSON.stringify(extractionSchemaJson, null, 2),
     notes
   );
-  const prompt = "Produce a structured output from these notes.";
 
   const structuredLLM = llm.withStructuredOutput(extractSchema);
 
   const result = await structuredLLM.invoke([
     new SystemMessage(systemPrompt),
-    new HumanMessage(prompt),
+    new HumanMessage("Produce a structured output from these notes."),
   ]);
 
   return {
