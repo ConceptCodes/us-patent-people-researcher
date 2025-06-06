@@ -8,13 +8,13 @@ export const InputStateAnnotation = Annotation.Root({
     reducer: (x, y) => y ?? x,
     default: () => "",
   }),
+  patentMetadata: Annotation<Map<string, string> | null>({
+    reducer: (x, y) => y ?? x,
+    default: () => null,
+  }),
   userNotes: Annotation<string>({
     reducer: (x, y) => y ?? x,
     default: () => "",
-  }),
-  patentInfo: Annotation<PatentViewInfo | null>({
-    reducer: (x, y) => y ?? x,
-    default: () => null,
   }),
 });
 
@@ -33,6 +33,10 @@ export const AgentStateAnnotation = Annotation.Root({
   ...InputStateAnnotation.spec,
   ...OutPutStateAnnotation.spec,
 
+  patentInfo: Annotation<PatentViewInfo | null>({
+    reducer: (x, y) => y ?? x,
+    default: () => null,
+  }),
   searchQueries: Annotation<string[]>({
     reducer: (x, y) => y ?? x,
     default: () => [],

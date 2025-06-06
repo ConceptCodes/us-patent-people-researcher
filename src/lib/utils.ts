@@ -1,5 +1,6 @@
 import { tavily, type TavilySearchResponse } from "@tavily/core";
 import type { PatentViewInfo } from "@/types";
+import "dotenv/config";
 
 const tvly = tavily({
   apiKey: process.env.TAVILY_API_KEY,
@@ -46,40 +47,54 @@ export const isValidUSPatentNumber = (patentNumber: string): boolean => {
 export const getPatentInfo = async (
   patentNumber: string
 ): Promise<PatentViewInfo | null> => {
-  const endpoint = "https://api.patentsview.org/patents/query";
+  const endpoint = "https://search.patentsview.org/api/v1/patents/search";
   const body = {
     q: {
-      patent_number: patentNumber.replace(/^([A-Z]+)/, (_, p1) =>
-        p1.toLowerCase()
-      ),
+      patent_number: [
+        patentNumber.replace(/^([A-Z]+)/, (_, p1) => p1.toLowerCase()),
+      ],
     },
-    f: [
+    fields: [
       "patent_number",
       "patent_title",
       "patent_date",
-      "inventor_first_name",
-      "inventor_last_name",
-      "assignee_organization",
       "patent_abstract",
+      "inventors.inventor_id",
+      "inventors.inventor_first_name",
+      "inventors.inventor_last_name",
+      "assignees.assignee_id",
+      "assignees.assignee_organization",
     ],
+    pagination: { per_page: 1 },
   };
   try {
     const res = await fetch(endpoint, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "X-Api-Key": process.env.PATENTS_VIEW_API_KEY || "",
+      },
       body: JSON.stringify(body),
     });
     if (!res.ok) throw new Error(`PatentsView API error: ${res.status}`);
-    const data = await res.json();
-    const patents = (data as any)?.patents;
+    const data = (await res.json()) as { data?: { patents?: any[] } };
+    const patents = data?.data?.patents;
     if (Array.isArray(patents) && patents.length > 0) {
+      const patent = patents[0];
       return {
-        patentDate: patents[0].patent_date,
-        patentNumber: patents[0].patent_number,
-        patentTitle: patents[0].patent_title,
-        patentAbstract: patents[0].patent_abstract || "",
-        inventorFirstName: patents[0].inventor_first_name || [],
-        inventorLastName: patents[0].inventor_last_name || [],
+        patentDate: patent.patent_date,
+        patentNumber: patent.patent_number,
+        patentTitle: patent.patent_title,
+        patentAbstract: patent.patent_abstract || "",
+        inventorFirstName: (patent.inventors || []).map(
+          (inv: any) => inv.inventor_first_name
+        ),
+        inventorLastName: (patent.inventors || []).map(
+          (inv: any) => inv.inventor_last_name
+        ),
+        assigneeOrganization: (patent.assignees || []).map(
+          (a: any) => a.assignee_organization
+        ),
       };
     }
     return null;

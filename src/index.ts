@@ -1,5 +1,6 @@
 import { graph } from "@/agent/graph";
 const readline = require("readline");
+import "dotenv/config";
 
 const rl = readline.createInterface({
   input: process.stdin,
