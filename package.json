@@ -1,0 +1,24 @@
+{
+  "name": "us-patent-people-researcher",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "bun run src/index.ts",
+    "studio": "bunx @langchain/langgraph-cli@latest dev"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@langchain/core": "^0.3.57",
+    "@langchain/langgraph": "^0.3.1",
+    "@langchain/ollama": "^0.2.1",
+    "@langchain/openai": "^0.5.12",
+    "@tavily/core": "^0.5.6",
+    "zod-to-json-schema": "^3.24.5"
+  }
+}
