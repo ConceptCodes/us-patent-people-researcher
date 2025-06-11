@@ -1,5 +1,5 @@
 import { tavily, type TavilySearchResponse } from "@tavily/core";
-import type { PatentViewInfo } from "@/types";
+import type { PatentsViewInfo } from "@/types";
 import "dotenv/config";
 
 const tvly = tavily({
@@ -44,62 +44,69 @@ export const isValidUSPatentNumber = (patentNumber: string): boolean => {
   return usPatentNumberRegex.test(patentNumber.trim());
 };
 
-export const getPatentInfo = async (
+export const fetchPatentAndInventorInfo = async (
   patentNumber: string
-): Promise<PatentViewInfo | null> => {
-  const endpoint = "https://search.patentsview.org/api/v1/patents/search";
-  const body = {
-    q: {
-      patent_number: [
-        patentNumber.replace(/^([A-Z]+)/, (_, p1) => p1.toLowerCase()),
-      ],
-    },
-    fields: [
-      "patent_number",
-      "patent_title",
-      "patent_date",
-      "patent_abstract",
-      "inventors.inventor_id",
-      "inventors.inventor_first_name",
-      "inventors.inventor_last_name",
-      "assignees.assignee_id",
-      "assignees.assignee_organization",
-    ],
-    pagination: { per_page: 1 },
-  };
-  try {
-    const res = await fetch(endpoint, {
+): Promise<PatentsViewInfo | null> => {
+  const response = await fetch(
+    "https://search.patentsview.org/api/v1/patent/",
+    {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "X-Api-Key": process.env.PATENTS_VIEW_API_KEY || "",
       },
-      body: JSON.stringify(body),
-    });
-    if (!res.ok) throw new Error(`PatentsView API error: ${res.status}`);
-    const data = (await res.json()) as { data?: { patents?: any[] } };
-    const patents = data?.data?.patents;
-    if (Array.isArray(patents) && patents.length > 0) {
-      const patent = patents[0];
-      return {
-        patentDate: patent.patent_date,
-        patentNumber: patent.patent_number,
-        patentTitle: patent.patent_title,
-        patentAbstract: patent.patent_abstract || "",
-        inventorFirstName: (patent.inventors || []).map(
-          (inv: any) => inv.inventor_first_name
-        ),
-        inventorLastName: (patent.inventors || []).map(
-          (inv: any) => inv.inventor_last_name
-        ),
-        assigneeOrganization: (patent.assignees || []).map(
-          (a: any) => a.assignee_organization
-        ),
-      };
+      body: JSON.stringify({
+        q: {
+          patent_id: patentNumber,
+        },
+        f: [
+          "patent_id",
+          "patent_title",
+          "patent_date",
+          "inventors.inventor_id",
+          "inventors.inventor_name_first",
+          "inventors.inventor_name_last",
+          "inventors.inventor_city",
+          "inventors.inventor_state",
+          "inventors.inventor_country",
+        ],
+      }),
     }
-    return null;
-  } catch (err) {
-    console.error("Error fetching patent info:", err);
+  );
+
+  const data = (await response.json()) as PatentsViewInfo;
+  if (!data || !data.patents || data.patents.length === 0) {
+    console.error("No patent information found for:", patentNumber);
     return null;
   }
+  return data;
+};
+
+export const deduplicateAndFormatSources = (
+  searchResponse: TavilySearchResponse[],
+  maxTokensPerSource: number
+) => {
+  const uniqueSources: Record<string, TavilySearchResponse["results"][0]> = {};
+  for (const source of searchResponse) {
+    source.results.forEach((source) => {
+      if (!uniqueSources[source.url]) {
+        uniqueSources[source.url] = source;
+      }
+    });
+  }
+
+  let formattedText = "Sources:\n\n";
+  Object.values(uniqueSources).forEach((source) => {
+    formattedText += `Source ${source.title}:\n===\n`;
+    formattedText += `URL: ${source.url}\n===\n`;
+    formattedText += `Most relevant content from source: ${source.content}\n===\n`;
+    const charLimit = maxTokensPerSource * 4;
+    let rawContent = source.rawContent ?? "";
+    if (rawContent.length > charLimit) {
+      rawContent = rawContent.substring(0, charLimit) + "... [truncated]";
+    }
+    formattedText += `Full source content limited to ${maxTokensPerSource} tokens: ${rawContent}\n\n`;
+  });
+
+  return formattedText.trim();
 };

@@ -1,7 +1,7 @@
 import { Command, END } from "@langchain/langgraph";
 
 import { type AgentState } from "@/agent/state";
-import { getPatentInfo, isValidUSPatentNumber } from "@/lib/utils";
+import { fetchPatentAndInventorInfo, isValidUSPatentNumber } from "@/lib/utils";
 
 export const gatherUsPatentInfoNode = async (state: AgentState) => {
   const { usPatentNumber, patentMetadata } = state;
@@ -13,7 +13,7 @@ export const gatherUsPatentInfoNode = async (state: AgentState) => {
   console.log("Optional Patent Metadata: ", patentMetadata);
 
   try {
-    const patentInfo = await getPatentInfo(usPatentNumber);
+    const patentInfo = await fetchPatentAndInventorInfo(usPatentNumber);
     if (!patentInfo) {
       console.error("No patent information found for: ", usPatentNumber);
       return new Command({ goto: END });

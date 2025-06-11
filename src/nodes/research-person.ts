@@ -5,7 +5,7 @@ import {
   AgentStateAnnotation,
   type ConfigurationState,
 } from "@/agent/state";
-import { webSearch } from "@/lib/utils";
+import { deduplicateAndFormatSources, webSearch } from "@/lib/utils";
 import { getInfoPrompt } from "@/agent/prompt";
 import { llm } from "@/lib/llm";
 import { extractionSchemaJson } from "@/lib/schema";
@@ -20,17 +20,21 @@ export const researchPersonNode = async (
     personOfInterest: { name },
   } = state;
   const maxSearchResults = config.configurable?.maxSearchQueries!;
+  const maxTokensPerSource = config.configurable?.maxTokensPerSource!;
 
   const searchDocs = await Promise.all(
     searchQueries.map((query: string) => webSearch(query, maxSearchResults))
   );
 
-  const sourceStr = searchDocs.map((doc) => JSON.stringify(doc)).join("\n\n");
+  const combinedSources = deduplicateAndFormatSources(
+    searchDocs,
+    maxTokensPerSource
+  );
 
   const prompt = getInfoPrompt(
     name,
     JSON.stringify(extractionSchemaJson, null, 2),
-    sourceStr,
+    combinedSources,
     userNotes
   );
 

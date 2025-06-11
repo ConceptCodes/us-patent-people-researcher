@@ -1,6 +1,6 @@
 import { Annotation } from "@langchain/langgraph";
 
-import type { Person, PatentViewInfo } from "@/types";
+import type { Person, PatentsViewInfo } from "@/types";
 import type { EmailDraftSchema, ExtractSchema } from "@/lib/schema";
 
 export const InputStateAnnotation = Annotation.Root({
@@ -33,7 +33,7 @@ export const AgentStateAnnotation = Annotation.Root({
   ...InputStateAnnotation.spec,
   ...OutPutStateAnnotation.spec,
 
-  patentInfo: Annotation<PatentViewInfo | null>({
+  patentInfo: Annotation<PatentsViewInfo | null>({
     reducer: (x, y) => y ?? x,
     default: () => null,
   }),
@@ -70,6 +70,10 @@ export const ConfigurationAnnotation = Annotation.Root({
   maxSearchQueries: Annotation<number>({
     reducer: (x, y) => y ?? x,
     default: () => 5,
+  }),
+  maxTokensPerSource: Annotation<number>({
+    reducer: (x, y) => y ?? x,
+    default: () => 5000,
   }),
 });
 

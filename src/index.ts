@@ -16,11 +16,12 @@ rl.question("Enter a US patent number: ", async (patentNumber: string) => {
 
   try {
     const result = await graph.invoke(
-      { usPatentNumber: patentNumber },
+      { usPatentNumber: patentNumber.trim() },
       {
         configurable: {
           maxReflectionSteps: Number(process.env.MAX_REFLECTION_STEPS),
           maxSearchQueries: Number(process.env.MAX_SEARCH_QUERIES),
+          maxTokensPerSource: Number(process.env.MAX_SEARCH_RESULTS),
         },
       }
     );

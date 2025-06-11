@@ -23,12 +23,24 @@ export enum Nodes {
   REVIEW_DRAFT = "review-draft",
 }
 
-export type PatentViewInfo = {
-  patentNumber: string;
-  patentTitle: string;
-  patentDate: string;
-  patentAbstract?: string;
-  inventorFirstName?: string[];
-  inventorLastName?: string[];
-  assigneeOrganization?: string[];
+export type PatentsViewInfo = {
+  total_patent_count: number;
+  total_inventor_count: number;
+  patents: Patent[];
+};
+
+export type Patent = {
+  patent_id: string;
+  patent_title?: string;
+  patent_date?: string;
+  inventors: Inventor[];
+};
+
+export type Inventor = {
+  inventor_id: string;
+  inventor_name_first?: string;
+  inventor_name_last?: string;
+  inventor_city?: string;
+  inventor_state?: string;
+  inventor_country?: string;
 };
