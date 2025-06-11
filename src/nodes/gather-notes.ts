@@ -2,13 +2,13 @@ import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 
 import { llm } from "@/lib/llm";
 import { getExtractionPrompt } from "@/agent/prompt";
-import { type AgentState, AgentStateAnnotation } from "@/agent/state";
+import type { AgentState, AgentStateUpdate } from "@/agent/state";
 import { extractionSchemaJson, extractSchema } from "@/lib/schema";
 import { formatAllNotes } from "@/lib/utils";
 
 export const gatherNotesNode = async (
   state: AgentState
-): Promise<typeof AgentStateAnnotation.Update> => {
+): Promise<AgentStateUpdate> => {
   const { completedNotes } = state;
   const notes = formatAllNotes(completedNotes);
 

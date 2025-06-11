@@ -7,11 +7,11 @@ import {
   extractionSchemaJson,
   queriesSchema,
 } from "@/lib/schema";
-import { type AgentState, AgentStateAnnotation } from "@/agent/state";
+import type { AgentState, AgentStateUpdate } from "@/agent/state";
 
 export const reflectionNode = async (
   state: AgentState
-): Promise<typeof AgentStateAnnotation.Update> => {
+): Promise<AgentStateUpdate> => {
   const { info, reflectionSteps } = state;
   const systemPrompt = getReflectionPrompt(
     JSON.stringify(extractionSchemaJson, null, 2),

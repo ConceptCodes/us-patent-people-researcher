@@ -1,10 +1,10 @@
 import type { RunnableConfig } from "@langchain/core/runnables";
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 
-import {
-  type AgentState,
-  AgentStateAnnotation,
-  type ConfigurationState,
+import type {
+  AgentState,
+  ConfigurationState,
+  AgentStateUpdate,
 } from "@/agent/state";
 import { llm } from "@/lib/llm";
 import { extractionSchemaJson, queriesSchema } from "@/lib/schema";
@@ -13,10 +13,11 @@ import { getQueryWriterPrompt } from "@/agent/prompt";
 export const generateQueriesNode = async (
   state: AgentState,
   config: RunnableConfig<ConfigurationState>
-): Promise<typeof AgentStateAnnotation.Update> => {
+): Promise<AgentStateUpdate> => {
   const {
     personOfInterest: { email, name, role, company, socialContacts },
     userNotes,
+    patentInfo,
   } = state;
   const maxSearchQueries = config.configurable?.maxSearchQueries!;
   const structuredLLM = llm.withStructuredOutput(queriesSchema);
@@ -37,6 +38,7 @@ export const generateQueriesNode = async (
 
   const systemPrompt = getQueryWriterPrompt(
     personStr,
+    JSON.stringify(patentInfo, null, 2),
     maxSearchQueries,
     JSON.stringify(extractionSchemaJson, null, 2),
     userNotes

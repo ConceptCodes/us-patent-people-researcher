@@ -60,6 +60,14 @@ export const AgentStateAnnotation = Annotation.Root({
     reducer: (x, y) => y ?? x,
     default: () => 0,
   }),
+  reasoning: Annotation<string>({
+    reducer: (x, y) => y ?? x,
+    default: () => "",
+  }),
+  missingFields: Annotation<string[]>({
+    reducer: (x, y) => y ?? x,
+    default: () => [],
+  }),
 });
 
 export const ConfigurationAnnotation = Annotation.Root({
@@ -78,4 +86,5 @@ export const ConfigurationAnnotation = Annotation.Root({
 });
 
 export type AgentState = typeof AgentStateAnnotation.State;
+export type AgentStateUpdate = typeof AgentStateAnnotation.Update;
 export type ConfigurationState = typeof ConfigurationAnnotation.State;

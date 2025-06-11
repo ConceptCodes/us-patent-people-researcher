@@ -17,13 +17,16 @@ ${notes}
 
 export function getQueryWriterPrompt(
   person: string,
+  patentInfo: string,
   maxSearchQueries: number,
   info: string,
   userNotes: string
 ): string {
-  return `You are a search query generator tasked with creating targeted search queries to gather specific information about a person.
+  return `You are a search query generator tasked with creating targeted search queries to gather specific information about a patent inventor.
 
 Here is the person you are researching: ${person}
+
+Here is info on the patent in question: ${patentInfo}
 
 Generate at most ${maxSearchQueries} search queries that will help gather the following information:
 
@@ -106,7 +109,7 @@ export function getEmailDraftPrompt(
   patentInfo: string,
   userNotes: string
 ): string {
-  return `You are an email draft generator tasked with creating a professional outreach email.
+  return `You are an email draft generator tasked with creating a professional outreach email to a patent inventor.
   
 Here is the information you have gathered about them:
 <info>
